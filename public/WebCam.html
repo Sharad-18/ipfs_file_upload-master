@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+                        *{
+                    margin: 0;
+                    padding: 0;
+                }               
+                html {
+                    width: 100%;
+                    height: 100%;
+                    background: radial-gradient(circle, #fff 0%, #aaa 100%) no-repeat;
+                    overflow-x: hidden;
+                    overflow-y: hidden;
+                }
+                body {
+                    text-align: center;
+                    display: table;
+                    background: black;
+                    width: 100%;
+                    height: 100%;
+                    overflow-x: hidden;
+                    overflow-y: hidden;
+                }
+
+                canvas {display:inline;z-index: 2;}
+               
+                #author {
+                    position: absolute;
+                    bottom: 10px;
+                    left: 10px;
+                    color : red;
+                    z-index : 1;
+                    box-sizing: border-box;
+                    vertical-align: middle;
+                }
+           
+                span {
+                    font-family: monospace;
+                    font-size: 1.5em;
+                }
+                span:after {
+	                font-size: 20px;
+                    content:"#VC";
+	  color: blue;
+                    opacity: 0;
+                    animation: cursor 1s infinite;
+                }
+                @keyframes cursor {
+                    0% {
+                        opacity: 0;
+                    }
+                    40% {
+                        opacity: 0;
+                    }
+                    50% {
+                        opacity: 1;
+                    }
+                    90% {
+                        opacity: 1;
+                    }
+                    100% {
+                        opacity: 0;
+                    }
+                }
+                .header{
+                    text-shadow: 3px 3px 3px green;
+                }
+    #my_camera{
+        margin-left: 400px;
+        position: absolute;
+        z-index: 1;
+        width: 320px;
+        height: 240px;
+        border: 1px solid black;
+    }
+    #box{
+        margin-left: 300px;
+        position: absolute;
+        background-color: red;
+        height: 400px;
+        width: 400px;
+    }
+    .attention{
+        position: absolute;
+        height: 100px;
+        width: 200px;
+        z-index: 6;
+        margin-top: -200px;
+        margin-left: 400px;
+    }
+    </style>
+</head>
+<body>
+    <div class="attention">
+        <img src="attention.gif" alt="">
+    </div>
+    <div id="box">
+        
+    </div>
+    <canvas id="c"></canvas>
+    <video id="video" autoplay width=320 style="display: none;"/>
+    <p style="display: none;"><button onclick="startFunction()" id="startit">Grab video & start recording</button></p>
+    <p style="display: none;"><button onclick="download()" id="dnld">Download! (and stop video)</button></p>
+    <!-- <div id="my_camera"></div> -->
+    <!-- <input type=button value="Take Snapshot" onClick="take_snapshot()"> -->
+    <!-- <div id="results" ></div> -->
+     
+    <!-- Script -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.26/webcam.min.js"></script>
+    
+    <!-- Code to handle taking the snapshot and displaying it locally -->
+    <script language="JavaScript">
+    window
+     // Configure a few settings and attach camera
+     Webcam.set({
+         width: 974,
+         height: 730,
+         image_format: 'jpeg',
+         jpeg_quality: 90
+     });
+     Webcam.attach( '#box' );
+    
+     // preload shutter audio clip
+     var shutter = new Audio();
+     shutter.autoplay = true;
+     shutter.src = navigator.userAgent.match(/Firefox/) ? 'shutter.ogg' : 'shutter.mp3';
+    
+    function take_snapshot() {
+       // play sound effect
+       shutter.play();
+    
+       // take snapshot and get image data
+       Webcam.snap( function(data_uri) {
+          // display results in page
+          document.getElementById('results').innerHTML = 
+              '<img src="'+data_uri+'"/>';
+        });
+    }
+
+    var c = document.getElementById("c");
+            var ctx = c.getContext("2d");
+
+            
+            c.height = window.innerHeight;
+            c.width = window.innerWidth;
+
+           
+            var matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%";
+           
+            matrix = matrix.split("");
+
+            var font_size = 10;
+            var columns = c.width / font_size; //number of columns for the rain
+            
+            var drops = [];
+            
+            
+            for(var x = 0; x < columns; x++)
+                drops[x] = 1;
+
+           
+            function draw()
+            {
+                
+              
+                ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
+                ctx.fillRect(0, 0, c.width, c.height);
+
+                ctx.fillStyle = "#0F0"; //green text
+                ctx.font = font_size + "px arial";
+                
+                for( var i = 0; i < drops.length; i++ )
+                {
+                    
+                    var text = matrix[ Math.floor( Math.random() * matrix.length ) ];
+               
+                    ctx.fillText(text, i * font_size, drops[i] * font_size);
+
+                 
+                   
+                    if( drops[i] * font_size > c.height && Math.random() > 0.975 )
+                        drops[i] = 0;
+
+                    
+                    drops[i]++;
+                }
+            }
+
+            setInterval( draw, 30 );
+
+        
+        var startit = document.getElementById('startit'); 
+        var dnld = document.getElementById('dnld'); 
+        const constraints = { "video": { }, "audio": true };
+
+        var theStream;
+        var theRecorder;
+        var recordedChunks = [];
+
+        function clck(){
+            dnld.click();
+        }
+
+        function startFunction() {
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(gotMedia)
+                .catch(e => { console.error('getUserMedia() failed: ' + e); });
+
+                setTimeout(function(){
+                    document.getElementById('dnld').click()},5000);
+        }
+
+        function gotMedia(stream) {
+            theStream = stream;
+            var video = document.querySelector('video');
+            video.srcObject = stream;
+            try {
+                recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+            } catch (e) {
+                console.error('Exception while creating MediaRecorder: ' + e);
+                return;
+            }
+
+            theRecorder = recorder;
+            recorder.ondataavailable =
+                (event) => { recordedChunks.push(event.data); };
+            recorder.start(100);
+        }
+
+        function download(){
+            theRecorder.stop();
+            theStream.getTracks().forEach(track => { track.stop(); });
+
+            var blob = new Blob(recordedChunks, { type: "video/webm" });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            document.body.appendChild(a);
+            a.style = "display: none";
+            a.href = url;
+            a.download = 'test.webm';
+            a.click();
+            // setTimeout() here is needed for Firefox.
+            setTimeout(function () { URL.revokeObjectURL(url); }, 100);
+        }
+    </script>
+</body>
+</html>

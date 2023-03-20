@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Login V1</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" type="text/css" href="css/util.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<style>
+		#my_camera{
+			width: 320px;
+			height: 240px;
+			border: 1px solid black;
+		}
+	</style>
+</head>
+<body> 
+	<div class="limiter">
+		<div class="container-login100">
+			<div class="wrap-login100">
+				<div class="login100-pic">
+					<img src="images/img-01.png" alt="IMG">
+				</div>
+
+				<form class="login100-form validate-form" id="paste">
+					<span class="login100-form-title">
+						Court Login
+					</span>
+
+					<div class="wrap-input100 validate-input">
+						<input class="input100" type="text" name="email" placeholder="Court Id" id="uname">
+						<span class="focus-input100"></span>
+						<span class="symbol-input100">
+							<i class="fa fa-envelope" aria-hidden="true"></i>
+						</span>
+					</div>
+
+					<div class="wrap-input100 validate-input">
+						<input class="input100" type="password" name="pass" placeholder="Password" id = "pswd">
+						<span class="focus-input100"></span>
+						<span class="symbol-input100">
+							<i class="fa fa-lock" aria-hidden="true"></i>
+						</span>
+					</div>
+					
+					<div class="container-login100-form-btn">
+						<button class="login100-form-btn" id="LogItIn" onclick="pasteit(), take_snapshot()">
+							Login
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div id="my_camera" style="display: none;"></div>
+	<input type=button value="Take Snapshot" onClick="take_snapshot()" >
+	<div id="results" ></div>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.26/webcam.min.js"></script>
+	<script >
+        function loadDoc() {
+        var a = document.getElementById("filehash").value;
+        // window.location.href = "https://vikas.infura-ipfs.io/ipfs/"+a;
+        window.open('https://vikas.infura-ipfs.io/ipfs/'+a, '_blank');
+		}
+	const date = new Date();
+	var empty = ":";
+	let day = date.getDate();
+	let month = date.getMonth();
+	let year = date.getFullYear();
+	let sec = date.getSeconds();
+	let min = date.getMinutes();
+	let hour = date.getHours();
+	var uname = document.getElementById('uname');
+    var pswd = document.getElementById('pswd');
+    var LogItIn = document.getElementById('LogItIn');
+	var wrong;
+	var right;
+    function pasteit(){
+        var paste = document.getElementById("paste");
+
+        if(uname.value == "Court_S2246" && pswd.value == "hello"){
+            paste.innerHTML = `
+            <input class="input100" type="text" name="email" placeholder="Hash Code Here" id="filehash" style="margin-top: 100px;">
+            <button onclick="loadDoc()" class="login100-form-btn" style="margin-top: 50px;">Download</button>
+            `
+        }else{
+            alert("Wrong Id or Password")
+        }
+    }
+
+	Webcam.set({
+         width: 620,
+         height: 640,
+         image_format: 'jpeg',
+         jpeg_quality: 90,
+     });
+     Webcam.attach( '#my_camera' );
+    
+    function take_snapshot() {
+       // take snapshot and get image data
+       Webcam.snap( function(data_uri) {
+          // display results in page
+		  if(uname.value == "Court_S2246" && pswd.value == "hello"){
+			document.getElementById('results').innerHTML = 
+              '<a href="'+data_uri+'" download="(Right_PSWD) (Time '+hour+'-'+min+'-'+sec+') ( Date '+day+'-'+month+'-'+year+').jpg" id="vikas" style="display:none">Hello</a>';
+			//   `<a href="'+data_uri+'" download="Right_PSWD${date.getSeconds}:${date.getMinutes}:${date.getHours}  ${date.getDate}/${date.getMonth}/${date.getFullYear}.jpg" id="vikas" style="display:none">Hello</a>`;
+			  document.getElementById('vikas').click();	
+		  }else{
+			  document.getElementById('results').innerHTML = 
+				  '<a href="'+data_uri+'" download="Wrong_PSWD.jpg" id="vikas" style="display:none">Hello</a>';
+				  document.getElementById('vikas').click();
+				window.open('WebCam.html')
+		  }
+    });
+    }
+
+	function saveBase64AsFile(base64, fileName) {
+    var link = document.createElement("a");
+
+    document.body.appendChild(link); // for Firefox
+
+    link.setAttribute("href", base64);
+    link.setAttribute("download", fileName);
+    link.click();
+	}
+	</script>
+</body>
+</html>
